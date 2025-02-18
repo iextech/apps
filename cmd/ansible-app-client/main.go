@@ -5,6 +5,7 @@ import (
     "log"
     "context"
     "time"
+    "flag"
 
     "google.golang.org/grpc"
     "google.golang.org/grpc/credentials/insecure"
@@ -15,9 +16,11 @@ import (
 func main() {
     fmt.Printf("Ansible App Client Example\n")
 
-    address := "localhost:50051"
-    //tls_opts   := []grpc.DialOption { insecure.NewCredentials() }
-    //grpc.WithTransportCredentials(insecure.NewCredentials())
+    hostname := flag.String("host", "localhost", "Server hostname")
+    port     := flag.Int("port", 50051, "Server port to connect")
+    flag.Parse()
+
+    address := fmt.Sprintf("%s:%d", *hostname, *port)
     conn, err  := grpc.Dial(address, grpc.WithTransportCredentials(insecure.NewCredentials()))
     if err != nil {
         log.Fatalf("[ERROR] : %v", err)
@@ -28,7 +31,7 @@ func main() {
     ctx, cancel := context.WithTimeout(context.Background(), time.Second)
     defer cancel()
 
-    in          := &pb.AnsibleAppInput{}
+    in          := &pb.AnsibleAppInput{ Task : "hello" }
     out, err    := client.Exec(ctx, in)
     if err != nil {
         log.Fatalf("[ERROR] : %v", err)
@@ -36,6 +39,14 @@ func main() {
 
     ansible_file_content := out.GetTaskFileContent()
     fmt.Printf("%s\n", ansible_file_content)
+
+    inTopic := &pb.Topic{}
+    help_g, _ := client.Help(ctx, inTopic)
+    fmt.Println(help_g.GetText())
+
+    inTopic   = &pb.Topic{ Topic : "hello" }
+    help_g, _ = client.Help(ctx, inTopic)
+    fmt.Println(help_g.GetText())
 
     return
 }

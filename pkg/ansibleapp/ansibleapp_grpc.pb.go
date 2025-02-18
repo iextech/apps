@@ -19,6 +19,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AnsibleAppServiceClient interface {
 	Exec(ctx context.Context, in *AnsibleAppInput, opts ...grpc.CallOption) (*AnsibleAppOutput, error)
+	Help(ctx context.Context, in *Topic, opts ...grpc.CallOption) (*HelpText, error)
 }
 
 type ansibleAppServiceClient struct {
@@ -38,11 +39,21 @@ func (c *ansibleAppServiceClient) Exec(ctx context.Context, in *AnsibleAppInput,
 	return out, nil
 }
 
+func (c *ansibleAppServiceClient) Help(ctx context.Context, in *Topic, opts ...grpc.CallOption) (*HelpText, error) {
+	out := new(HelpText)
+	err := c.cc.Invoke(ctx, "/ansibleapp.AnsibleAppService/Help", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AnsibleAppServiceServer is the server API for AnsibleAppService service.
 // All implementations must embed UnimplementedAnsibleAppServiceServer
 // for forward compatibility
 type AnsibleAppServiceServer interface {
 	Exec(context.Context, *AnsibleAppInput) (*AnsibleAppOutput, error)
+	Help(context.Context, *Topic) (*HelpText, error)
 	mustEmbedUnimplementedAnsibleAppServiceServer()
 }
 
@@ -52,6 +63,9 @@ type UnimplementedAnsibleAppServiceServer struct {
 
 func (UnimplementedAnsibleAppServiceServer) Exec(context.Context, *AnsibleAppInput) (*AnsibleAppOutput, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Exec not implemented")
+}
+func (UnimplementedAnsibleAppServiceServer) Help(context.Context, *Topic) (*HelpText, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Help not implemented")
 }
 func (UnimplementedAnsibleAppServiceServer) mustEmbedUnimplementedAnsibleAppServiceServer() {}
 
@@ -84,6 +98,24 @@ func _AnsibleAppService_Exec_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AnsibleAppService_Help_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Topic)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AnsibleAppServiceServer).Help(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/ansibleapp.AnsibleAppService/Help",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AnsibleAppServiceServer).Help(ctx, req.(*Topic))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AnsibleAppService_ServiceDesc is the grpc.ServiceDesc for AnsibleAppService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -94,6 +126,10 @@ var AnsibleAppService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Exec",
 			Handler:    _AnsibleAppService_Exec_Handler,
+		},
+		{
+			MethodName: "Help",
+			Handler:    _AnsibleAppService_Help_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

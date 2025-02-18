@@ -22,6 +22,19 @@ func (s *server) Exec(ctx context.Context, in *pb.AnsibleAppInput) (*pb.AnsibleA
     return out, nil
 }
 
+func (s *server) Help(ctx context.Context, in *pb.Topic) (*pb.HelpText, error) {
+    topic := in.GetTopic()
+    var   helptext    string
+    if len(topic) == 0 {
+        helptext = "General help"
+    } else {
+        helptext = "Help on " + topic
+    }
+    out := &pb.HelpText{ Text : helptext }
+
+    return out, nil
+}
+
 func main() {
     fmt.Printf("Ansible App Server Example\n")
 
