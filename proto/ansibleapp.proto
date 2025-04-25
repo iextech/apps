@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+option java_package = "com.iextech.ansibleapp";
+option java_multiple_files = true;
+option java_outer_classname = "AnsibleAppInterface";
+
+option go_package = "github.com/iextech/apps/pkg/ansibleapp";
+
+package ansibleapp;
+
+service AnsibleAppService {
+   rpc Exec(AnsibleAppInput) returns (AnsibleAppOutput);
+   rpc Help(Topic) returns (HelpText);
+}
+
+// AnsibleApp
+message AnsibleAppInput {
+    string task = 1;
+}
+message AnsibleAppOutput {
+    string   task_file_content   = 1;
+}
+
+message Topic {
+    string topic = 1;
+}
+
+message HelpText {
+    string text = 1;
+}
