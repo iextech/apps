@@ -18,7 +18,14 @@ message AnsibleAppInput {
     string task = 1;
 }
 message AnsibleAppOutput {
+    enum FileType {
+        TEXT  = 0;
+        TAR   = 1;
+        TGZ   = 2;
+    }
     string   task_file_content   = 1;
+    bytes    binary_file_content = 2;
+    FileType file_type           = 10;
 }
 
 message Topic {
