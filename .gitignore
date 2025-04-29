@@ -1,0 +1,6 @@
+# binary files
+cmd/ansible-app-client/ansible-app-client
+cmd/ansible-app-server/ansible-app-server
+
+# Go generated file
+go.sum
